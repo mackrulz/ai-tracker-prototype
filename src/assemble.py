@@ -133,6 +133,8 @@ for k in ['s01','s02','s03','s04','s05','s06','sQ','s07','s08','s09']:
 sections.append('<section class="screen lock" id="s10" style="%s">%s</section>'%(style10,scr['s10']))
 html=html_fix=None
 html=tpl.replace('<!--SCREENS-->','\n'.join(sections)).replace('<!--DOCK-->','<div class="edge" id="edge"></div>'+dock)
+import sys;sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)));from v3 import v3
+html=v3(html)
 html=html.replace("'SFProLocal'","-apple-system,'Inter',system-ui,sans-serif")
 open(OUT+'/index.html','w',encoding='utf-8').write(html)
 print('ok',len(html))
