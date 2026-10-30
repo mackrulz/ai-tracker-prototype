@@ -1,6 +1,6 @@
 # Builds the SPA index.html from the AI Designer glass screens (read-only source).
 import re, os
-SRC='/workspace/ai-tracker-mobile-glass/html/'
+SRC='/workspace/ai-tracker-mobile-glass-v2/html/'  # v2: Perplexity -> Claude + Grok (5 platforms)
 OUT=os.path.dirname(os.path.abspath(__file__))+'/..'
 def inner(fn):
     s=open(SRC+fn,encoding='utf-8').read()
@@ -53,9 +53,9 @@ scr['s04']=b
 # 05: make progress elements addressable
 b,_=inner('05-tarama.html')
 b=rep(b,'<span class="x" style="width:36px;height:36px;border-radius:18px">','<span class="x" style="width:36px;height:36px;border-radius:18px" data-act="skip-scan">')
-b=rep(b,'<div style="width:104px;height:104px;border-radius:52px;background:conic-gradient(var(--teal) 0 58%,rgba(255,255,255,.6) 58% 100%)','<div id="ring" style="width:104px;height:104px;border-radius:52px;background:conic-gradient(var(--teal) 0 0%,rgba(255,255,255,.6) 0% 100%)')
-b=rep(b,'<b style="font-size:32px;letter-spacing:-1.2px;font-weight:800">58</b><span class="small" style="font-size:11px">/ 100 soru</span>','<b style="font-size:32px;letter-spacing:-1.2px;font-weight:800" id="ringN">0</b><span class="small" style="font-size:11px" id="ringT">/ 100 soru</span>')
-b=re.sub(r'<div style="display:flex;flex-direction:column;gap:8px;margin-top:16px">.*?\n </div>\n</div>','<div style="display:flex;flex-direction:column;gap:8px;margin-top:16px" id="scanList"></div>\n</div>',b,count=1,flags=re.S)
+b=rep(b,'<div style="width:92px;height:92px;border-radius:46px;background:conic-gradient(var(--teal) 0 66%,rgba(255,255,255,.6) 66% 100%)','<div id="ring" style="width:92px;height:92px;border-radius:46px;background:conic-gradient(var(--teal) 0 0%,rgba(255,255,255,.6) 0% 100%)')
+b=rep(b,'<b style="font-size:28px;letter-spacing:-1.2px;font-weight:800">66</b><span class="small" style="font-size:11px">/ 100 soru</span>','<b style="font-size:28px;letter-spacing:-1.2px;font-weight:800" id="ringN">0</b><span class="small" style="font-size:11px" id="ringT">/ 100 soru</span>')
+b=re.sub(r'<div style="display:flex;flex-direction:column;gap:6px;margin-top:12px">.*?\n </div>\n</div>','<div style="display:flex;flex-direction:column;gap:6px;margin-top:12px" id="scanList"></div>\n</div>',b,count=1,flags=re.S)
 assert 'scanList' in b
 b=rep(b,'<button class="btn ghost">Kapat, bildirim bekle','<button class="btn ghost" data-act="skip-scan" id="scanBtn">Kapat, bildirim bekle')
 scr['s05']=b
@@ -65,8 +65,10 @@ b=rep(b,'<div class="small" style="font-size:14px">Merhaba Dt. Burak 👋</div><
 b=rep(b,'<div class="av" style="width:44px;height:44px;border-radius:22px;background:var(--g-hero);color:#fff">DB</div>','<div class="av" style="width:44px;height:44px;border-radius:22px;background:var(--g-hero);color:#fff;cursor:pointer" data-act="settings" aria-label="Ayarlar">DB</div>')
 b=rep(b,'<div class="card row" style="margin-top:12px;padding:14px 18px">','<div class="card row tap" style="margin-top:12px;padding:14px 18px" data-tab="s08">')
 b=rep(b,'<a>Tümü</a>','<a data-act="plat" data-p="">Tümü</a>')
-for p,name in [('gem','Gemini'),('ppx','Perplexity'),('gpt','ChatGPT'),('gai','Google AI')]:
+for p,name in [('gem','Gemini'),('cla','Claude'),('grk','Grok'),('gpt','ChatGPT')]:
     b=rep(b,'<div class="card" style="padding:14px"><div class="row" style="justify-content:space-between"><span class="badge s b-%s">'%p,'<div class="card tap" style="padding:14px" data-act="plat" data-p="%s"><div class="row" style="justify-content:space-between"><span class="badge s b-%s">'%(p,p))
+b=rep(b,'<div class="card pwide" style="padding:14px;grid-column:1 / -1"><div class="row" style="gap:12px"><span class="badge s b-gai">','<div class="card pwide tap" style="padding:14px;grid-column:1 / -1" data-act="plat" data-p="gai"><div class="row" style="gap:12px"><span class="badge s b-gai">')
+assert 'ppx' not in b and 'Perplexity' not in b
 b=b.rstrip()
 assert b.endswith('</div>')
 b=b[:-6]+'<p class="small" style="text-align:center;margin:14px 0 4px;opacity:.8">Sayılar ve klinik adları örnek veridir.</p></div>'

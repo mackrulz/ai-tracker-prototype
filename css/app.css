@@ -64,3 +64,4 @@ body{-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-selec
  #lsTime{font-size:80px!important;line-height:86px!important}
  #s10 .content>div:last-child{margin-top:16px!important}
 }
+@media (max-height:700px){#s05 .bottom .card.flat{display:none}}

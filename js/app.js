@@ -1,23 +1,23 @@
 (function(){
 'use strict';
 var $=function(s,r){return (r||document).querySelector(s)}, $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
-var KEY='aitracker-proto-v1';
-var P={gpt:{n:'ChatGPT',a:'GP'},gem:{n:'Gemini',a:'Ge'},ppx:{n:'Perplexity',a:'Px'},gai:{n:'Google AI',a:'G'}};
-var PK=['gpt','gem','ppx','gai'];
-function Q(t,ask,g,ge,p,ga){return {t:t,ask:ask||null,st:{gpt:g,gem:ge,ppx:p,gai:ga}}}
+var KEY='aitracker-proto-v2';
+var P={gpt:{n:'ChatGPT',a:'GP'},gem:{n:'Gemini',a:'Ge'},cla:{n:'Claude',a:'Cl'},grk:{n:'Grok',a:'Gk'},gai:{n:'Google AI',a:'G'}};
+var PK=['gpt','gem','cla','grk','gai'];
+function Q(t,ask,g,ge,c,k,ga){return {t:t,ask:ask||null,st:{gpt:g,gem:ge,cla:c,grk:k,gai:ga}}}
 function defaults(){return {
  site:'doktorburak.com', onboarded:false, compsTouched:false, done:{},
  comps:[{n:'Moda Diş Kliniği',d:'Kadıköy · İmplant, ortodonti'},{n:'Dt. Selin Aydın',d:'Kadıköy · Estetik diş, beyazlatma'},{n:'Kadıköy Gülüş Merkezi',d:'Kadıköy · Gülüş tasarımı, zirkonyum'}],
- qs:[Q("Kadıköy'de en iyi diş hekimi","Kadıköy'de en iyi diş hekimi kim?",0,2,true,0),
-  Q("İstanbul'da implant için kime gitmeliyim",null,0,3,0,0),
-  Q("Diş beyazlatma fiyatları Kadıköy",null,2,1,2,0),
-  Q("Kadıköy'de zirkonyum kaplama",null,0,2,3,0),
-  Q("Acil diş hekimi Kadıköy",null,3,1,0,2),
-  Q("İmplant fiyatları 2026",null,0,0,0,0),
-  Q("Gülüş tasarımı nerede yaptırılır",null,0,4,2,0),
-  Q("Çocuk diş hekimi Kadıköy",null,0,0,1,0),
-  Q("Diş teli şeffaf plak",null,0,3,0,0),
-  Q("Ağrısız diş çekimi",null,2,1,3,1)]
+ qs:[Q("Kadıköy'de en iyi diş hekimi","Kadıköy'de en iyi diş hekimi kim?",0,2,true,0,0),
+  Q("İstanbul'da implant için kime gitmeliyim",null,0,3,0,4,0),
+  Q("Diş beyazlatma fiyatları Kadıköy",null,2,1,2,3,0),
+  Q("Kadıköy'de zirkonyum kaplama",null,0,2,3,0,0),
+  Q("Acil diş hekimi Kadıköy",null,3,1,0,2,2),
+  Q("İmplant fiyatları 2026",null,0,0,0,0,0),
+  Q("Gülüş tasarımı nerede yaptırılır",null,0,4,2,2,0),
+  Q("Çocuk diş hekimi Kadıköy",null,0,0,1,0,0),
+  Q("Diş teli şeffaf plak",null,0,3,0,0,0),
+  Q("Ağrısız diş çekimi",null,2,1,3,3,1)]
 }}
 var S; try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){} if(!S||!S.qs) S=defaults();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
@@ -78,7 +78,7 @@ function rChips(){
  $$('#chipWrap .chipq').forEach(function(e){e.remove()});
  var end=$('#chipEnd'),n=S.qs.length;
  S.qs.forEach(function(q,i){var d=document.createElement('div');d.className='chipq';d.innerHTML='<span>'+esc(q.t)+'</span><span class="x" style="width:24px;height:24px;margin:0" data-act="rm-q" data-i="'+i+'" aria-label="Çıkar">'+X12+'</span>';if(!q.nw)d.style.animation='none';delete q.nw;end.parentNode.insertBefore(d,end)});
- $('#qSub').textContent=n?'Bu '+n+' konuyu her hafta 4 platformda soracağız.':'Takip etmek istediğin soruları ekle.';
+ $('#qSub').textContent=n?'Bu '+n+' konuyu her hafta '+PK.length+' platformda soracağız.':'Takip etmek istediğin soruları ekle.';
  $('#qFoot').innerHTML=n+' konu × 10 farklı soruluş = <b style="color:var(--navy)">'+(n*10)+' soru</b>';
  $('[data-act="start-scan"]').disabled=!n;
 }
@@ -87,24 +87,24 @@ function addQ(after){var t=window.prompt('Hastaların AI\'a soracağı yeni soru
 var scanRAF=null,scanTO=null,scanDone=false;
 function scanRow(k,state,pct){var s=state==='done'?'Tamamlandı':state==='run'?P[k].n+' taranıyor…':'Bekliyor';
  var r=state==='done'?'<span class="tick" style="background:var(--teal)">'+OK+'</span>':state==='run'?'<span class="chip c-g">%'+pct+'</span>':'<span class="small">Sırada</span>';
- return '<div class="card" style="padding:10px 14px"><div class="row"><span class="badge s b-'+k+'">'+P[k].a+'</span><div style="flex:1"><b style="font-size:16px">'+P[k].n+'</b><div class="small">'+s+'</div></div>'+r+'</div><div class="bar" style="margin-top:8px;height:6px"><i style="width:'+(state==='done'?100:state==='run'?pct:0)+'%;background:var(--teal)"></i></div></div>'}
+ return '<div class="card" style="padding:8px 14px"><div class="row"><span class="badge s b-'+k+'">'+P[k].a+'</span><div style="flex:1"><b style="font-size:16px">'+P[k].n+'</b><div class="small">'+s+'</div></div>'+r+'</div><div class="bar" style="margin-top:6px;height:6px"><i style="width:'+(state==='done'?100:state==='run'?pct:0)+'%;background:var(--teal)"></i></div></div>'}
 function drawScan(p){var tot=S.qs.length*10;$('#ringN').textContent=Math.round(p*tot);$('#ringT').textContent='/ '+tot+' soru';
  $('#ring').style.background='conic-gradient(var(--teal) 0 '+(p*100)+'%,rgba(255,255,255,.6) '+(p*100)+'% 100%)';
- $('#scanList').innerHTML=PK.map(function(k,i){var lp=Math.max(0,Math.min(1,p*4-i));return scanRow(k,lp>=1?'done':lp>0?'run':'wait',Math.round(lp*100))}).join('')}
+ $('#scanList').innerHTML=PK.map(function(k,i){var lp=Math.max(0,Math.min(1,p*PK.length-i));return scanRow(k,lp>=1?'done':lp>0?'run':'wait',Math.round(lp*100))}).join('')}
 function startScan(){stopScan();scanDone=false;var b=$('#scanBtn');b.textContent='Kapat, bildirim bekle';b.className='btn ghost';var t0=performance.now(),D=4000;
  (function step(t){var p=Math.min(1,(t-t0)/D);drawScan(p);if(p<1)scanRAF=requestAnimationFrame(step);else{scanDone=true;b.textContent='Sonuçları gör';b.className='btn';scanTO=setTimeout(function(){if(cur==='s05'){enterMain();setTimeout(banner,450)}},900)}})(t0)}
 function stopScan(){cancelAnimationFrame(scanRAF);clearTimeout(scanTO)}
 /* ---------- Sorular list ---------- */
 var filt='',curQ=0,heroP=null;
 function rQList(){
- var n=S.qs.length;$('#qlSub').textContent=n+' konu · 4 platform · her hafta ölçülür';
+ var n=S.qs.length;$('#qlSub').textContent=n+' konu · '+PK.length+' platform · her hafta ölçülür';
  $('#pfil').innerHTML=[['','Tümü']].concat(PK.map(function(k){return [k,P[k].n]})).map(function(x){return '<span class="chip c-n'+(filt===x[0]?' on':'')+'" data-pf="'+x[0]+'">'+x[1]+'</span>'}).join('');
  $('#qList').innerHTML=S.qs.map(function(q,i){
   var right,pl;
   if(!q.st){pl='<span class="small">Bir sonraki taramada ölçülecek</span>';right='<span class="chip c-y">Ölçülüyor</span>'}
   else{pl=PK.map(function(k){return '<span class="badge xs b-'+k+(rec(q.st[k])?'':' off')+'" title="'+P[k].n+'">'+P[k].a+'</span>'}).join('');
    if(filt){var v=q.st[filt];right='<span class="chip '+(rec(v)?'c-g':'c-r')+'">'+stTxt(v)+'</span>'}
-   else{var c=PK.filter(function(k){return rec(q.st[k])}).length;right='<span class="chip '+(c>=3?'c-g':c>=1?'c-y':'c-r')+'">4\'te '+c+'</span>'}}
+   else{var c=PK.filter(function(k){return rec(q.st[k])}).length;right='<span class="chip '+(c>=3?'c-g':c>=1?'c-y':'c-r')+'">'+PK.length+'\'te '+c+'</span>'}}
   return '<div class="qi" data-q="'+i+'"><div style="flex:1;min-width:0"><div class="t">'+esc(q.t)+'</div><div class="pl">'+pl+'</div></div>'+right+CHEV+'</div>'}).join('')||'<div class="qi"><span class="small">Takip edilen soru yok.</span></div>';
 }
 /* ---------- 07 question detail ---------- */
