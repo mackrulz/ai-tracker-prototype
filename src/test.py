@@ -24,6 +24,7 @@ with sync_playwright() as p:
     pg.click('#catG [data-c=avk]'); pg.wait_for_timeout(700); assert 'Avukat olarak algıladık' in pg.inner_text('#s02'), pg.inner_text('#s02')
     pg.click('#s02 [data-go=s03]'); pg.wait_for_timeout(400); assert 'Zeynep' in pg.inner_text('#compList')
     pg.click('#s03 [data-go=s04]'); pg.wait_for_timeout(400); t4=pg.inner_text('#s04'); assert "Müşteriler AI'a" in t4 and 'boşanma avukatı' in t4, t4
+    vv=pg.evaluate('__proto.state().qs.map(q=>q.vol)'); assert all(10<=v<=9900 for v in vv) and len(set(vv))>3, vv
     pg.click('#s04 .back'); pg.wait_for_timeout(400); pg.click('#s03 .back'); pg.wait_for_timeout(400); assert cur()=='s02'
     pg.click('#catChg'); pg.wait_for_timeout(450); pg.click('#catH [data-c=dis]'); pg.wait_for_timeout(700)
     assert 'Diş hekimi olarak algıladık' in pg.inner_text('#s02')
@@ -38,18 +39,34 @@ with sync_playwright() as p:
     pg.click('#s04 [data-act=add-q]'); assert pg.locator('#chipWrap .chipq').count()==10
     assert '100 soru' in pg.inner_text('#qFoot'); t4=pg.inner_text('#s04'); assert "Hastalar AI'a" in t4 and '4 platformda' in t4; shot('04-sorular')
     pg.click('#s04 [data-act=start-scan]'); pg.wait_for_timeout(2000); assert cur()=='s05'; assert pg.locator('#scanList .card').count()==5 and pg.locator('#scanList .card.locked').count()==1; assert 'Standart' in pg.inner_text('#scanList'); pg.screenshot(path=D+'05-tarama.png')
-    pg.wait_for_timeout(3600); assert cur()=='s06',cur(); assert pg.locator('#s06 [data-act=plat][data-p]:not([data-p=""])').count()==4; t6=pg.inner_text('#s06'); assert all(x in t6 for x in ['AI Overviews','AI Mode','Claude ve Grok',"Standart'ta açılır"]), t6; shot('06-ana-ekran')
+    pg.wait_for_timeout(3600); assert cur()=='s06',cur(); assert pg.locator('#s06 [data-act=plat][data-p]:not([data-p=""])').count()==4; t6=pg.inner_text('#s06'); assert all(x in t6 for x in ['AI Overviews','AI Mode','Claude ve Grok',"Standart'ta açılır"]), t6; pg.wait_for_timeout(4300); shot('06-ana-ekran')
     pg.click('.gt[data-tab=sQ]'); pg.wait_for_timeout(400); assert cur()=='sQ'
-    assert 'Ölçülüyor' in pg.inner_text('#qList'); shot('sQ-sorular-listesi')
+    t6=pg.text_content('#s06'); assert 'Arama hacmine göre ağırlıklı' in t6 and 'Adın geçiyor' in t6 and 'Siten kaynak' in t6, t6
+    assert pg.text_content('#todoRed')=='3', pg.text_content('#todoRed'); assert pg.text_content('.gt[data-tab=s09] .tbadge')=='3'
+    import re as _re; assert _re.fullmatch(r'%\d+',pg.text_content('#msName')) and _re.fullmatch(r'%\d+',pg.text_content('#msLink')) and _re.fullmatch(r'%\d+',pg.text_content('#visN'))
+    assert int(pg.text_content('#msName')[1:])>=int(pg.text_content('#visN')[1:])>=int(pg.text_content('#msLink')[1:])
+    assert 'Ölçülüyor' in pg.inner_text('#qList')
+    ts=pg.locator('#qList .qi .t').all_inner_texts(); assert ts[0]=='İmplant fiyatları 2026' and ts[1]=="Kadıköy'de en iyi diş hekimi", ts
+    assert 'Yüksek · ~2.400/ay' in pg.inner_text('#qList') and 'Hacim ölçülüyor' in pg.inner_text('#qList')
+    pg.click('#sortBtn'); assert pg.locator('#qList .qi .t').first.inner_text()=="Kadıköy'de en iyi diş hekimi"; pg.click('#sortBtn'); assert pg.locator('#qList .qi .t').first.inner_text()=='İmplant fiyatları 2026'
+    shot('sQ-sorular-listesi')
     pg.click('#qList [data-q="0"]'); pg.wait_for_timeout(400); assert cur()=='s07'
-    assert 'önermedi' in pg.inner_text('#qdHero'); shot('07-soru-detayi')
+    assert 'önermedi' in pg.inner_text('#qdHero'); tq=pg.inner_text('#qdList'); assert tq.count('İsim geçti')==4 and tq.count('Link verildi')==4; assert '~1.900/ay' in pg.inner_text('#qdMeta') and '14. sıra' in pg.inner_text('#qdMeta'); shot('07-soru-detayi')
     assert pg.locator('#qdList .item').count()==6 and pg.locator('#qdList [data-act=locked]').count()==2; pg.click('#qdList [data-hp=gam]'); assert 'AI Mode' in pg.inner_text('#qdHero'); pg.click('#qdList [data-hp=gem]'); assert '2. sırada' in pg.inner_text('#qdHero')
     pg.click('#s07 .back'); pg.wait_for_timeout(400); assert cur()=='sQ'
     assert pg.locator('#pfil [data-pf]').count()==5 and pg.locator('#pfil .lockc').count()==2; pg.click('#pfil [data-pf=gao]'); pg.click('#pfil [data-pf=gpt]'); assert 'Önermedi' in pg.inner_text('#qList')
-    pg.click('.gt[data-tab=s08]'); pg.wait_for_timeout(400); assert cur()=='s08'; shot('08-rakipler')
+    pg.click('.gt[data-tab=s08]'); pg.wait_for_timeout(400); assert cur()=='s08'; assert pg.locator('#rankList .rkr').count()==4 and 'Adı geçiyor' in pg.text_content('#s08') and pg.locator('#rankList .me').count()==1; assert pg.locator('#rankList .rkr').nth(2).get_attribute('class').endswith('me'); shot('08-rakipler')
     pg.click('.gt[data-tab=s09]'); pg.wait_for_timeout(400); assert cur()=='s09'
-    pg.click('#s09 [data-act=do] >> nth=1'); assert 'Yapıldı' in pg.inner_text('#s09'); shot('09-oneriler')
-    pg.click('.gt[data-tab=s06]'); pg.wait_for_timeout(400)
+    assert pg.locator('#tfil .chip').count()==4; assert pg.locator('#todoList .tgh').count()==3
+    tg=pg.locator('#todoList .tgh').all_inner_texts(); assert 'Rakip var' in tg[0] and 'Google AI' in tg[1] and 'ilk 10' in tg[2], tg
+    assert pg.locator('#todoList .td.red').count()==3 and pg.locator('#todoList .td.yel').count()==2 and pg.locator('#todoList .td.grn').count()==2
+    t9=pg.inner_text('#todoList'); assert 'Moda Diş Kliniği' in t9 and 'Doktortakvimi' in t9 and 'Google: 4. sıra' in t9 and 'Adım:' in t9
+    shot('09-oneriler')
+    pg.click('#tfil [data-f=r]'); assert pg.locator('#todoList .td').count()==3 and pg.locator('#todoList .td.yel').count()==0; shot('09b-oneriler-kirmizi')
+    pg.click('#tfil [data-f=g]'); assert pg.locator('#todoList .td').count()==2; pg.click('#tfil [data-f=""]'); assert pg.locator('#todoList .td').count()==7
+    pg.click('#s09 [data-act=do] >> nth=1'); assert 'Yapıldı' in pg.inner_text('#s09')
+    pg.click('#todoList [data-q] >> nth=0'); pg.wait_for_timeout(400); assert cur()=='s07'; pg.click('#s07 .back'); pg.wait_for_timeout(400); assert cur()=='s09'
+    pg.click('.gt[data-tab=s06]'); pg.wait_for_timeout(400); assert pg.text_content('#todoRed')=='2', pg.text_content('#todoRed')
     pg.click('#s06 [data-act=plat][data-p=gao]'); pg.wait_for_timeout(400); assert cur()=='sQ'
     assert 'on' in pg.get_attribute('#pfil [data-pf=gao]','class')
     pg.click('.gt[data-tab=s06]'); pg.wait_for_timeout(400)

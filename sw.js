@@ -1,5 +1,5 @@
 // Network-first service worker: works offline after first visit, always prefers fresh files.
-const C='aitp-v3';
+const C='aitp-v4';
 self.addEventListener('install',e=>self.skipWaiting());
 self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));
 self.addEventListener('fetch',e=>{

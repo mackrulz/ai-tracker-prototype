@@ -38,7 +38,7 @@ def comps(b):
         b=re.sub(r'(?<![>"])'+re.escape(n),'<span class="cn%d">%s</span>'%(i,n),b)
     return b
 def card(k,a,top,name,n,chip):
-    return '<div class="card tap" style="padding:14px" data-act="plat" data-p="%s"><div class="row" style="justify-content:space-between"><span class="badge s b-%s">%s</span>%s</div><div class="small" style="margin-top:8px;font-size:11px;font-weight:700;letter-spacing:.3px">%s</div><b style="font-size:15px;display:block">%s</b><div class="small" style="margin-top:2px">%d soruda öneriyor</div></div>'%(k,k,a,chip,top,name,n)
+    return '<div class="card tap" style="padding:14px" data-act="plat" data-p="%s"><div class="row" style="justify-content:space-between"><span class="badge s b-%s">%s</span><span id="pc-%s">%s</span></div><div class="small" style="margin-top:8px;font-size:11px;font-weight:700;letter-spacing:.3px">%s</div><b style="font-size:15px;display:block">%s</b><div class="small" style="margin-top:2px" id="pv-%s">%d soruda öneriyor</div></div>'%(k,k,a,k,chip,top,name,k,n)
 CH={'g':'<span class="chip c-g"><span class="dot d-g"></span>İyi</span>','y':'<span class="chip c-y"><span class="dot d-y"></span>Orta</span>','r':'<span class="chip c-r"><span class="dot d-r"></span>Zayıf</span>'}
 def s06(b):
     b=rep(b,'<div class="small" style="font-size:14px">Merhaba Dt. Burak 👋</div>','<div class="small" style="font-size:14px">Merhaba <span class="who">Dt. Burak</span> 👋</div>')

@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 var $=function(s,r){return (r||document).querySelector(s)}, $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
-var KEY='aitracker-proto-v3';
+var KEY='aitracker-proto-v4';
 var P={gpt:{n:'ChatGPT',a:'GP'},gem:{n:'Gemini',a:'Ge'},gao:{n:'AI Overviews',f:'Google AI Overviews',a:'AO'},gam:{n:'AI Mode',f:'Google AI Mode',a:'AM'},cla:{n:'Claude',a:'Cl'},grk:{n:'Grok',a:'Gk'}};
 var PK=['gpt','gem','gao','gam'], LK=['cla','grk'];
 var LOCK='<svg class="lk" width="11" height="13" viewBox="0 0 16 20" fill="none"><rect x="1.5" y="8.5" width="13" height="10" rx="2.5" fill="currentColor"/><path d="M4.5 8.5V6a3.5 3.5 0 017 0v2.5" stroke="currentColor" stroke-width="2.2"/></svg>';
@@ -44,18 +44,18 @@ var CATS={
 var CH=['dis','est','psk','dyt','dok'], CG=['avk','gzl','rst','etc','oth'];
 function hs(s){var h=0;for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return Math.abs(h)}
 function genQ(t,i){var v=function(k){var x=hs(t+k)%10;return x<5?0:x-4>4?(x%3?true:1):x-4}; var q=Q(t,null,v('a'),v('b'),v('c'),v('d')); if(i===0){q.st.gpt=0;q.st.gem=2}return q}
-function catQs(c){if(c==='dis')return dentalQs();return CATS[c].qs.map(genQ)}
+function catQs(c){if(c==='dis')return dentalQs();return CATS[c].qs.map(function(t,i){return genV4(genQ(t,i),i,c)})}
 function aud(){return CATS[S.cat]&&CATS[S.cat].h?['Hastalar','hastaların','Hastaların','hastalarından']:['Müşteriler','müşterilerin','Müşterilerin','müşterilerinden']}
-function dentalQs(){return [Q("Kadıköy'de en iyi diş hekimi","Kadıköy'de en iyi diş hekimi kim?",0,2,0,0),
-  Q("İstanbul'da implant için kime gitmeliyim",null,0,3,0,4),
-  Q("Diş beyazlatma fiyatları Kadıköy",null,2,1,0,3),
-  Q("Kadıköy'de zirkonyum kaplama",null,0,2,0,0),
-  Q("Acil diş hekimi Kadıköy",null,3,1,2,2),
-  Q("İmplant fiyatları 2026",null,0,0,0,0),
-  Q("Gülüş tasarımı nerede yaptırılır",null,0,4,0,2),
-  Q("Çocuk diş hekimi Kadıköy",null,0,0,0,0),
-  Q("Diş teli şeffaf plak",null,0,3,0,0),
-  Q("Ağrısız diş çekimi",null,2,1,1,3)]}
+function dentalQs(){return [X(Q("Kadıköy'de en iyi diş hekimi","Kadıköy'de en iyi diş hekimi kim?",0,2,0,0),{vol:1900,org:14,c:0,l:[],m:['gpt']}),
+  X(Q("İstanbul'da implant için kime gitmeliyim",null,0,3,0,4),{vol:880,org:7,c:0,l:['gam'],m:[]}),
+  X(Q("Diş beyazlatma fiyatları Kadıköy",null,2,1,0,3),{vol:590,org:3,c:1,l:['gpt','gam'],m:[]}),
+  X(Q("Kadıköy'de zirkonyum kaplama",null,0,2,0,0),{vol:320,org:6,c:2,l:['gem'],m:[]}),
+  X(Q("Acil diş hekimi Kadıköy",null,3,1,2,2),{vol:1300,org:2,c:0,l:['gpt','gao','gam'],m:[]}),
+  X(Q("İmplant fiyatları 2026",null,0,0,0,0),{vol:2400,org:4,c:0,l:[],m:['gao']}),
+  X(Q("Gülüş tasarımı nerede yaptırılır",null,0,4,0,2),{vol:720,org:9,c:2,l:['gam'],m:[]}),
+  X(Q("Çocuk diş hekimi Kadıköy",null,0,0,0,0),{vol:480,org:0,c:1,l:[],m:[]}),
+  X(Q("Diş teli şeffaf plak",null,0,3,0,0),{vol:1600,org:22,c:1,l:[],m:[]}),
+  X(Q("Ağrısız diş çekimi",null,2,1,1,3),{vol:390,org:5,c:0,l:['gao','gam'],m:[]})]}
 function defaults(){return {site:'doktorburak.com', cat:'dis', onboarded:false, compsTouched:false, done:{},
  comps:CATS.dis.comps.map(function(c){return {n:c.n,d:c.d}}), qs:dentalQs()}}
 var S; try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){} if(!S||!S.qs||!S.cat) S=defaults();
@@ -139,18 +139,21 @@ var filt='',curQ=0,heroP=null;
 function rQList(){
  var n=S.qs.length;$('#qlSub').textContent=n+' konu · '+PK.length+' platform · her hafta ölçülür';
  $('#pfil').innerHTML=[['','Tümü']].concat(PK.map(function(k){return [k,P[k].n]})).map(function(x){return '<span class="chip c-n'+(filt===x[0]?' on':'')+'" data-pf="'+x[0]+'">'+x[1]+'</span>'}).join('')+LK.map(function(k){return '<span class="chip c-n lockc" data-act="locked" data-lk="'+k+'">'+LOCK+' '+P[k].n+'</span>'}).join('');
- $('#qList').innerHTML=S.qs.map(function(q,i){
+ var ord=S.qs.map(function(q,i){return i});if(SORT==='vol')ord.sort(function(a,b){return (S.qs[b].vol||0)-(S.qs[a].vol||0)||a-b});
+ $('#sortBtn').textContent='Sırala: '+(SORT==='vol'?'Önem':'Eklenme')+' ▾';$('#sortNote').textContent=SORT==='vol'?'Öneme göre sıralı · aylık Google araması':'Eklenme sırasına göre';
+ $('#qList').innerHTML=ord.map(function(i){var q=S.qs[i];
   var right,pl;
   if(!q.st){pl='<span class="small">Bir sonraki taramada ölçülecek</span>';right='<span class="chip c-y">Ölçülüyor</span>'}
   else{pl=PK.map(function(k){return '<span class="badge xs b-'+k+(rec(q.st[k])?'':' off')+'" title="'+P[k].n+'">'+P[k].a+'</span>'}).join('');
    if(filt){var v=q.st[filt];right='<span class="chip '+(rec(v)?'c-g':'c-r')+'">'+stTxt(v)+'</span>'}
    else{var c=PK.filter(function(k){return rec(q.st[k])}).length;right='<span class="chip '+(c>=3?'c-g':c>=1?'c-y':'c-r')+'">'+PK.length+'\'te '+c+'</span>'}}
-  return '<div class="qi" data-q="'+i+'"><div style="flex:1;min-width:0"><div class="t">'+esc(q.t)+'</div><div class="pl">'+pl+'</div></div>'+right+CHEV+'</div>'}).join('')||'<div class="qi"><span class="small">Takip edilen soru yok.</span></div>';
+  return '<div class="qi" data-q="'+i+'"><div style="flex:1;min-width:0"><div class="t">'+esc(q.t)+'</div><div class="vrow">'+volPill(q)+'</div><div class="pl">'+pl+'</div></div>'+right+CHEV+'</div>'}).join('')||'<div class="qi"><span class="small">Takip edilen soru yok.</span></div>';
 }
 /* ---------- 07 question detail ---------- */
 function rDetail(){
  var q=S.qs[curQ]||S.qs[0]; if(!q)return; var st=q.st;
  $('#qdTitle').textContent='“'+(q.ask||q.t)+'”';
+ $('#qdMeta').innerHTML=volPill(q)+(q.org?'<span class="vp">Google: '+q.org+'. sıra</span>':'<span class="vp">Google: ilk 20 dışında</span>');
  var k=heroP||filt||(PK.filter(function(x){return !rec(st[x])})[0])||'gpt'; heroP=k;
  var a=(S.comps[0]||{n:'Moda Diş Kliniği'}).n,b=(S.comps[1]||{n:'Dt. Selin Aydın'}).n, v=st[k], nm=pn(k);
  var badge='<span class="gp"><span class="badge xs b-'+k+'">'+P[k].a+'</span> '+nm+'</span>';
@@ -158,10 +161,64 @@ function rDetail(){
  if(!rec(v)) h='<div class="hl red" style="margin-top:12px;padding:16px 18px"><div class="row" style="justify-content:space-between;margin-bottom:10px">'+badge+'<span class="gp">✕ Önerilmedin</span></div><p style="font-size:17px;line-height:22px;font-weight:600;letter-spacing:-.3px"><b>'+nm+' seni önermedi;</b> yerine <b>'+esc(a)+'</b> ve <b>'+esc(b)+'</b>\'ı önerdi.</p><div class="gbox" style="margin-top:12px;padding:10px 14px"><p style="font-size:13px;line-height:18px;color:#fff;font-style:italic">“Kadıköy\'de öne çıkan seçenekler arasında '+esc(a)+' ve '+esc(b)+' sıkça olumlu yorum alıyor…”</p><p style="font-size:11px;color:rgba(255,255,255,.8);margin-top:4px">Örnek AI cevabı · 27 Eki</p></div></div>';
  else h='<div class="hl teal" style="margin-top:12px;padding:16px 18px"><div class="row" style="justify-content:space-between;margin-bottom:10px">'+badge+'<span class="gp">✓ '+(v===true?'Önerildin':v+'. sıradasın')+'</span></div><p style="font-size:17px;line-height:22px;font-weight:600;letter-spacing:-.3px"><b>'+nm+' seni '+(v===true?'önerdi':v+'. sırada önerdi')+'.</b> '+(v===1?'Bu soruda zirvedesin.':'Önünde <b>'+esc(a)+'</b> var.')+'</p><div class="gbox" style="margin-top:12px;padding:10px 14px"><p style="font-size:13px;line-height:18px;color:#fff;font-style:italic">“…'+esc(CATS[S.cat].who)+' ('+esc(S.site)+') '+esc(CATS[S.cat].tags.slice(1,3).join(' ve ').toLocaleLowerCase('tr-TR'))+' konusunda '+aud()[3]+' olumlu yorumlar alıyor…”</p><p style="font-size:11px;color:rgba(255,255,255,.8);margin-top:4px">Örnek AI cevabı · 27 Eki</p></div></div>';
  $('#qdHero').innerHTML=h;
- $('#qdList').innerHTML=PK.map(function(x){var r=rec(st[x]);return '<div class="item" data-hp="'+x+'" style="padding:7px 0'+(x===k?';background:rgba(0,196,154,.07);margin:0 -16px;padding:7px 16px':'')+'"><span class="badge xs b-'+x+'">'+P[x].a+'</span><b style="font-size:15px;flex:1">'+pn(x)+'</b><span class="small" style="color:var(--navy2);font-weight:600">'+stTxt(st[x])+'</span><span class="tick" style="background:var(--'+(r?'teal':'red')+')">'+(r?OK:NO)+'</span></div>'}).join('')+LK.map(function(x){return '<div class="item" data-act="locked" data-lk="'+x+'" style="padding:7px 0"><span class="badge xs b-'+x+' lockd">'+P[x].a+'</span><b style="font-size:15px;flex:1;color:var(--navy2)">'+P[x].n+'</b><span class="lkchip">'+LOCK+' Standart\'ta açılır</span></div>'}).join('');
+ $('#qdList').innerHTML=PK.map(function(x){var r=rec(st[x]);return '<div class="item" data-hp="'+x+'" style="padding:7px 0'+(x===k?';background:rgba(0,196,154,.07);margin:0 -16px;padding:7px 16px':'')+'"><span class="badge xs b-'+x+'">'+P[x].a+'</span><div style="flex:1;min-width:0"><b style="font-size:15px">'+pn(x)+'</b><div class="nl"><span class="'+(named(q,x)?'y':'n')+'">'+(named(q,x)?'✓':'✕')+' İsim geçti</span><span class="'+(linked(q,x)?'y':'n')+'">'+(linked(q,x)?'✓':'✕')+' Link verildi</span></div></div><span class="small" style="color:var(--navy2);font-weight:600">'+stTxt(st[x])+'</span><span class="tick" style="background:var(--'+(r?'teal':'red')+')">'+(r?OK:NO)+'</span></div>'}).join('')+LK.map(function(x){return '<div class="item" data-act="locked" data-lk="'+x+'" style="padding:7px 0"><span class="badge xs b-'+x+' lockd">'+P[x].a+'</span><b style="font-size:15px;flex:1;color:var(--navy2)">'+P[x].n+'</b><span class="lkchip">'+LOCK+' Standart\'ta açılır</span></div>'}).join('');
 }
-var RENDER={s03:rComps,s04:rChips,sQ:rQList,s07:rDetail,s02:function(){$('#siteIn').value=S.site}};
-function syncSite(){$$('.siteName').forEach(function(e){e.textContent=S.site});syncCat()}
+/* ---------- v4: search volume, name vs source, prioritised actions ---------- */
+function X(q,o){for(var k in o)q[k]=o[k];return q}
+var VB=[10,20,30,40,50,70,90,110,140,170,210,260,320,390,480,590,720,880,1000,1300,1600,1900,2400,2900,3600,4400,5400,6600,8100,9900];
+function bucket(v){var b=VB[0];VB.forEach(function(x){if(Math.abs(x-v)<Math.abs(b-v))b=x});return b}
+var CV={dis:1,est:.9,psk:.7,dyt:.8,dok:.6,avk:1.2,gzl:.9,rst:1.5,etc:1.8,oth:.35};
+var SRC={dis:['Doktortakvimi','Google Haritalar','Şikayetvar','Hürriyet Sağlık'],est:['Doktortakvimi','Google Haritalar','Instagram','Şikayetvar'],psk:['Doktortakvimi','Google Haritalar','Psikoloji blogları','Ekşi Sözlük'],dyt:['Doktortakvimi','Google Haritalar','Instagram','Ekşi Sözlük'],dok:['Doktortakvimi','Google Haritalar','Şikayetvar','Sağlık haber siteleri'],
+ avk:['Google Haritalar','Hukuk haber siteleri','Ekşi Sözlük','Şikayetvar'],gzl:['Google Haritalar','Instagram','Şikayetvar','Randevu siteleri'],rst:['Google Haritalar','TripAdvisor','Instagram','Yemek blogları'],etc:['Trendyol','Şikayetvar','Ekşi Sözlük','Kozmetik blogları'],oth:['Google Haritalar','Şikayetvar','Ekşi Sözlük','Sektör rehberleri']};
+var GAPS=['fiyat aralığı ve sık sorulan sorular','uzmanlık, deneyim ve sertifikalar','güncel yorumlar ve örnek çalışmalar','konum, çalışma saatleri ve iletişim'];
+function genV4(q,i,c){var h=hs(q.t+'v');var base=[2400,1300,880,720,590,480,390,320,210,140][i]||200;
+ q.vol=bucket(base*CV[c]*(.6+(h%80)/100));q.org=(h%5===0)?0:1+(h>>3)%18;q.c=i%3;
+ q.l=PK.filter(function(k){return rec(q.st[k])&&(hs(q.t+k+'l')%3!==0)});q.m=PK.filter(function(k){return !rec(q.st[k])&&hs(q.t+k+'m')%5===0});
+ if(i===0){q.org=14;q.st.gao=0;q.st.gam=0;q.l=[];q.m=[]}return q}
+function fmtV(v){return '~'+Number(v).toLocaleString('tr-TR')+'/ay'}
+function lvl(v){return v>=1000?['Yüksek','c-g']:v>=300?['Orta','c-y']:['Düşük','c-n']}
+function volPill(q){if(!q.vol)return '<span class="vp">Hacim ölçülüyor</span>';var L=lvl(q.vol);return '<span class="vp '+L[1]+'"><i></i>'+L[0]+' · '+fmtV(q.vol)+'</span>'}
+function named(q,k){return rec(q.st[k])||(q.m||[]).indexOf(k)>=0}
+function linked(q,k){return (q.l||[]).indexOf(k)>=0}
+function metrics(){var W=0,v=0,n=0,l=0,pp={};PK.forEach(function(k){pp[k]=0});
+ S.qs.forEach(function(q){if(!q.st||!q.vol)return;W+=q.vol;PK.forEach(function(k){if(rec(q.st[k])){v+=q.vol;pp[k]+=q.vol}if(named(q,k))n+=q.vol;if(linked(q,k))l+=q.vol})});
+ var d=W*PK.length||1;var r={vis:Math.round(v*100/d),name:Math.round(n*100/d),link:Math.round(l*100/d),p:{}};PK.forEach(function(k){r.p[k]=W?Math.round(pp[k]*100/W):0});return r}
+function todos(){var out=[];S.qs.forEach(function(q,i){if(!q.st||!q.vol)return;var s=q.st,gg=rec(s.gao)||rec(s.gam),miss=!rec(s.gpt)||!rec(s.gem);if(!miss)return;
+  var t=gg?'y':(q.org&&q.org<=10?'g':'r');out.push({t:t,q:q,i:i})});
+ var o={r:0,y:1,g:2};out.sort(function(a,b){return o[a.t]-o[b.t]||b.q.vol-a.q.vol});return out}
+function rHome(){var m=metrics(),prev=Math.max(0,m.vis-4);
+ $('#visN').textContent='%'+m.vis;$('#visK').textContent=m.vis;$('#visPrev').textContent='Geçen hafta %'+prev;$('#visD').textContent='▲ +'+(m.vis-prev)+' bu hafta';
+ $('#visRing').style.background='conic-gradient(#fff 0 '+m.vis+'%,rgba(255,255,255,.18) '+m.vis+'% 100%)';
+ $('#msName').textContent='%'+m.name;$('#msLink').textContent='%'+m.link;
+ PK.forEach(function(k){var x=m.p[k];$('#pv-'+k).textContent='%'+x+' görünürlük';$('#pc-'+k).innerHTML=x>=40?'<span class="chip c-g"><span class="dot d-g"></span>İyi</span>':x>=20?'<span class="chip c-y"><span class="dot d-y"></span>Orta</span>':'<span class="chip c-r"><span class="dot d-r"></span>Zayıf</span>'});
+ var T=todos(),red=T.filter(function(x){return x.t==='r'&&!S.done[x.q.t]}).length;$('#todoRed').textContent=red;$('#todoSub').textContent=red?red+' acil adım: rakip var, sen yoksun':'Acil adım yok · '+T.length+' öneri';
+ $('#todoRed').style.background=red?'linear-gradient(145deg,#FF7A7A,#E5484D)':'var(--g-hero)';$('#todoRed').textContent=red||'✓';
+ $('#bannerT').textContent='Her 100 aramadan '+m.vis+' tanesinde öneriliyorsun (örnek)';setT('.vPrev','%'+prev);setT('.vNow','%'+m.vis);
+ var tb=$('.gt[data-tab=s09]');if(tb){var bd=tb.querySelector('.tbadge');if(!bd){bd=document.createElement('em');bd.className='tbadge';tb.appendChild(bd)}bd.textContent=red;bd.style.display=red?'':'none'}}
+var TF='';
+var TL={r:['🔴','Rakip var, sen yoksun','red'],y:['🟡','Google AI\'da var, ChatGPT/Gemini\'de yok','yel'],g:['🟢','Google\'da ilk 10\'dasın, AI henüz almıyor','grn']};
+function srcs(q){var s=SRC[S.cat]||SRC.oth,h=hs(q.t);return [s[h%4],s[(h+1)%4],s[(h+2)%4]]}
+function todoCard(x){var q=x.q,c=CATS[S.cat],cn=(S.comps[q.c||0]||c.comps[q.c||0]||{n:'Rakip'}).n,L=TL[x.t],done=S.done[q.t],body,step;
+ var miss=['gpt','gem'].filter(function(k){return !rec(q.st[k])}).map(function(k){return P[k].n}).join(' ve ');
+ if(x.t==='r'){body='<p class="tx"><b>'+esc(cn)+'</b> öneriliyor; '+miss+' seni önermiyor.</p><div class="qt">“'+esc(q.t)+' denince öne çıkan isimlerden biri '+esc(cn)+'; yorumlarda ilgili ve deneyimli bulunuyor…”</div><div class="small sl">Yapay zekânın kaynak gösterdiği yerler</div><div class="srcs">'+srcs(q).map(function(s){return '<span class="chip c-n">'+esc(s)+'</span>'}).join('')+'</div>';
+  step='Bu sitelerde yer al: profilini aç ya da güncelle, '+aud()[1]+' yorum iste; haber ve blog yazarlarıyla iletişime geç (PR hedefi).'}
+ else if(x.t==='y'){var gs=['gao','gam'].filter(function(k){return rec(q.st[k])}).map(function(k){return P[k].n}).join(' ve ');
+  body='<p class="tx">Google '+gs+' seni öneriyor, <b>'+miss+'</b> önermiyor. Google sana zaten güveniyor.</p>';
+  step='Bu güveni taşı: siteni Bing Webmaster Tools\'a ekle (ChatGPT Bing\'i kullanır), Google\'daki güçlü sayfanı güncel tut ve rehber profillerindeki bilgileri sitendekiyle aynı yap.'}
+ else {body='<p class="tx">Google\'da <b>'+q.org+'. sıradasın</b>, ama '+miss+' bu soruda sayfanı kaynak almıyor.</p><div class="small sl">Eksik görünen: '+GAPS[hs(q.t)%4]+'</div>';
+  step='Sayfana bu soruya doğrudan cevap veren kısa bir bölüm ekle: 3-5 soru-cevap, net bilgiler ve güncel tarih.'}
+ return '<div class="card td '+L[2]+'"><div class="row" style="gap:6px;flex-wrap:wrap"><span class="tg '+L[2]+'">'+L[0]+' '+L[1]+'</span></div><b class="tq">“'+esc(q.t)+'”</b><div class="row" style="gap:6px;margin-top:6px;flex-wrap:wrap">'+volPill(q)+(q.org?'<span class="vp">Google: '+q.org+'. sıra</span>':'<span class="vp">Google: ilk 20 dışında</span>')+'</div>'+body+'<div class="stp"><b>Adım:</b> '+step+'</div><div class="row" style="justify-content:space-between;margin-top:10px"><a class="small lnk" data-q="'+x.i+'">Soruyu aç ›</a><button class="btn sm'+(done?' done-btn':'')+'" data-act="do" data-k="'+esc(q.t)+'">'+(done?'✓ Yapıldı':'Yaptım')+'</button></div></div>'}
+function rTodo(){var T=todos(),cnt={r:0,y:0,g:0};T.forEach(function(x){cnt[x.t]++});
+ $('#tfil').innerHTML=[['','Tümü',T.length],['r','🔴 Kırmızı',cnt.r],['y','🟡 Sarı',cnt.y],['g','🟢 Yeşil',cnt.g]].map(function(f){return '<span class="chip c-n'+(TF===f[0]?' on':'')+'" data-act="tf" data-f="'+f[0]+'">'+f[1]+' <b style="opacity:.6;margin-left:3px">'+f[2]+'</b></span>'}).join('');
+ var h='',last='';T.filter(function(x){return !TF||x.t===TF}).forEach(function(x){if(x.t!==last){last=x.t;h+='<div class="tgh '+TL[x.t][2]+'">'+TL[x.t][0]+' '+TL[x.t][1]+'</div>'}h+=todoCard(x)});
+ $('#todoList').innerHTML=h||'<div class="card"><span class="small">Bu grupta öneri yok.</span></div>'}
+function rRank(){var m=metrics(),c=CATS[S.cat],cl=function(x){return Math.max(2,Math.min(95,x))},cr=[[cl(m.name+13),cl(m.link+17)],[cl(m.name+4),cl(m.link+3)],[cl(m.name-24),cl(m.link-9)]];
+ var rows=[0,1,2].map(function(i){return {n:(S.comps[i]||c.comps[i]||{n:'Rakip'}).n,a:cr[i][0],b:cr[i][1]}});rows.push({n:'Sen',a:m.name,b:m.link,me:1});rows.sort(function(x,y){return y.a-x.a});
+ $('#rankList').innerHTML=rows.map(function(r,i){return '<div class="item rkr'+(r.me?' me':'')+'"><div class="av" style="width:30px;height:30px;border-radius:15px">'+(i+1)+'</div><b style="flex:1;min-width:0;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(r.n)+'</b><span class="c">%'+r.a+'</span><span class="c">%'+r.b+'</span></div>'}).join('')}
+var SORT='vol';
+
+var RENDER={s06:rHome,s08:rRank,s09:rTodo,s03:rComps,s04:rChips,sQ:rQList,s07:rDetail,s02:function(){$('#siteIn').value=S.site}};
+function syncSite(){$$('.siteName').forEach(function(e){e.textContent=S.site});syncCat();rHome()}
 function setT(sel,v){$$(sel).forEach(function(e){e.textContent=v})}
 function syncCat(){var c=CATS[S.cat]||CATS.dis,a=aud();
  setT('.catName',c.n);setT('.who',c.who);setT('.audP',a[0]);setT('.audG',a[1]);setT('.compNoun',c.noun);setT('.dir',c.dir);setT('.priceQ',c.priceQ);
@@ -172,7 +229,7 @@ function catRow(k){return '<div class="item'+(S.cat===k?' on':'')+'" data-act="c
 function catSheet(on){if(on){$('#catH').innerHTML=CH.map(catRow).join('');$('#catG').innerHTML=CG.map(catRow).join('')}$('#catSheet').classList.toggle('on',on)}
 function pickCat(k){if(!CATS[k])return;var ch=k!==S.cat;S.cat=k;if(ch){S.qs=catQs(k);S.comps=CATS[k].comps.map(function(c){return {n:c.n,d:c.d}});S.compsTouched=false;S.done={}}save();syncSite();catSheet(true);setTimeout(function(){catSheet(false);if(ch)toast('Soru önerileri “'+CATS[k].n+'” için güncellendi')},260)}
 /* ---------- 09 actions ---------- */
-function rDone(){$$('[data-act="do"]').forEach(function(b,i){if(S.done[i]){b.textContent='✓ Yapıldı';b.classList.add('done-btn')}})}
+function rDone(){}
 
 /* ---------- events ---------- */
 document.addEventListener('click',function(e){
@@ -204,7 +261,10 @@ document.addEventListener('click',function(e){
   case 'reset':try{localStorage.removeItem(KEY)}catch(x){}S=defaults();sheet(false);catSheet(false);filt='';syncSite();$$('[data-act="do"]').forEach(function(b,i){b.textContent=['Yorum iste','Tamamla','Nasıl?'][i];b.classList.remove('done-btn')});$('.gbtn i')&&($('.gbtn i').style.display='');stack=['s01'];show('s01','fade');break;
   case 'plat':var p=el.getAttribute('data-p')||'';stack=['sQ'];filt=p;show('sQ','fade');break;
   case 'period':var o=['Son 7 gün ▾','Son 30 gün ▾','Son 90 gün ▾'];el.textContent=o[(o.indexOf(el.textContent)+1)%3];toast('Prototipte veriler örnek, dönem değişmez');break;
-  case 'do':var bi=$$('[data-act="do"]').indexOf(el);if(!S.done[bi]){S.done[bi]=1;save();rDone();toast('Harika! Etkisini bir sonraki taramada göreceğiz.')}break;
+  case 'do':var dk=el.getAttribute('data-k');if(!S.done[dk]){S.done[dk]=1;save();rTodo();rHome();toast('Harika! Etkisini bir sonraki taramada göreceğiz.')}break;
+  case 'tf':TF=el.getAttribute('data-f')||'';rTodo();break;
+  case 'sort':SORT=SORT==='vol'?'add':'vol';rQList();break;
+  case 'ms-info':toast(el.getAttribute('data-m')==='name'?'Adın geçiyor: yapay zekâ seni biliyor ve cevapta adını anıyor':'Siten kaynak: yapay zekâ sitene güveniyor ve link veriyor');break;
   case 'open-ntf':openNtf();break;
   case 'close-ntf':closeNtf();break;
   case 'banner':$('#banner').classList.remove('on');break;
