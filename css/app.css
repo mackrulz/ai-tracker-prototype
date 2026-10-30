@@ -6,6 +6,8 @@ body{-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-selec
  body{background:radial-gradient(900px 600px at 20% 10%,#cfe9e2,transparent 70%),radial-gradient(800px 600px at 90% 90%,#d3dcf5,transparent 70%),#E3ECEB}
  #app{inset:auto;left:50%;top:50%;width:390px;height:min(844px,calc(100vh - 40px));transform:translate(-50%,-50%);border-radius:48px;
   box-shadow:0 0 0 10px #0B1B3F,0 0 0 11px #3a4a6e,0 40px 80px rgba(6,40,60,.3)}
+ #app>.screen,#app{-webkit-mask-image:-webkit-radial-gradient(white,black)}
+ #app .screen{border-radius:48px}
 }
 .screen{position:absolute;inset:0;display:flex;flex-direction:column;background:inherit;visibility:hidden;
  padding-top:max(env(safe-area-inset-top),22px);will-change:transform,opacity;z-index:1}
